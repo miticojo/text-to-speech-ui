@@ -43,6 +43,8 @@ const STORAGE_KEYS = {
   VOICE: "tts-selected-voice",
 } as const;
 
+const isAuthEnabled = process.env.NEXT_PUBLIC_AUTHENTICATION === "true";
+
 export default function Home() {
   const { user } = useAuth();
   const router = useRouter();
@@ -244,6 +246,8 @@ export default function Home() {
   };
 
   const handleSignOut = async () => {
+    if (!isAuthEnabled) return;
+
     try {
       await signOut(auth);
       router.push("/login");
@@ -265,15 +269,19 @@ export default function Home() {
   return (
     <main className="container mx-auto p-4 min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Text to Speech Synthesis</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">
-            Signed in as {user?.email}
-          </span>
-          <Button variant="outline" onClick={handleSignOut}>
-            Sign Out
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold">
+          {process.env.NEXT_PUBLIC_APP_TITLE || "Text to Speech Synthesis"}
+        </h1>
+        {isAuthEnabled && user && (
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">
+              Signed in as {user.email}
+            </span>
+            <Button variant="outline" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </div>
+        )}
       </div>
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
