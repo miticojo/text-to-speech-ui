@@ -246,7 +246,9 @@ export default function Home() {
   };
 
   const handleSignOut = async () => {
-    if (!isAuthEnabled) return;
+    if (!isAuthEnabled || !auth) {
+      return;
+    }
 
     try {
       await signOut(auth);
