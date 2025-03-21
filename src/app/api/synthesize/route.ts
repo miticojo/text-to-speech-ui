@@ -24,8 +24,10 @@ export async function POST(request: Request) {
       },
     });
 
-    // Return the audio content as base64
-    const audioContent = response.audioContent?.toString("base64");
+    // The audioContent is a Buffer, convert it to base64
+    const audioContent = Buffer.from(
+      response.audioContent as Uint8Array
+    ).toString("base64");
 
     return NextResponse.json({
       audioContent,
