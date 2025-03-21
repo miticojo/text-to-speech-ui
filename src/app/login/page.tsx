@@ -15,6 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 
+// Get allowed domains from environment variable
+const ALLOWED_DOMAINS = process.env.NEXT_PUBLIC_ALLOWED_DOMAINS
+  ? process.env.NEXT_PUBLIC_ALLOWED_DOMAINS.split(",").map((domain) =>
+      domain.trim()
+    )
+  : [];
+
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -29,7 +36,29 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+
+      // If domains are restricted, force account selection to prevent auto-login with unauthorized accounts
+      if (ALLOWED_DOMAINS.length > 0) {
+        provider.setCustomParameters({
+          prompt: "select_account",
+        });
+      }
+
+      const result = await signInWithPopup(auth, provider);
+
+      // Check if the user's email domain is allowed
+      if (ALLOWED_DOMAINS.length > 0) {
+        const emailDomain = result.user.email?.split("@")[1];
+        if (!emailDomain || !ALLOWED_DOMAINS.includes(emailDomain)) {
+          // Sign out the user immediately
+          await auth.signOut();
+          toast.error(
+            "Your email domain is not authorized to access this application"
+          );
+          return;
+        }
+      }
+
       router.push("/");
       toast.success("Successfully logged in!");
     } catch (error) {
