@@ -20,6 +20,10 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import { Loader2, Download, Play } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 interface Voice {
   name: string;
@@ -33,10 +37,30 @@ interface VoicesByLanguage {
   [key: string]: Voice[];
 }
 
+// Local storage keys
+const STORAGE_KEYS = {
+  LANGUAGE: "tts-selected-language",
+  VOICE: "tts-selected-voice",
+} as const;
+
 export default function Home() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [text, setText] = useState("");
-  const [language, setLanguage] = useState("en-US");
-  const [voice, setVoice] = useState("");
+  const [language, setLanguage] = useState<string>(() => {
+    // Try to get the saved language from localStorage during initialization
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(STORAGE_KEYS.LANGUAGE) || "en-US";
+    }
+    return "en-US";
+  });
+  const [voice, setVoice] = useState<string>(() => {
+    // Try to get the saved voice from localStorage during initialization
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(STORAGE_KEYS.VOICE) || "";
+    }
+    return "";
+  });
   const [speed, setSpeed] = useState([1.0]);
   const [pitch, setPitch] = useState([0]);
   const [volumeGain, setVolumeGain] = useState([0]);
@@ -81,6 +105,15 @@ export default function Home() {
         setLanguages(
           uniqueLanguages.sort((a, b) => a.name.localeCompare(b.name))
         );
+
+        // Validate saved voice against available voices
+        if (
+          voice &&
+          !data.voices[language]?.some((v: Voice) => v.name === voice)
+        ) {
+          setVoice("");
+        }
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching voices:", error);
@@ -90,12 +123,29 @@ export default function Home() {
     };
 
     fetchVoices();
-  }, []);
+  }, [language, voice]); // Added dependencies to validate saved voice
+
+  // Save language selection to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.LANGUAGE, language);
+    }
+  }, [language]);
+
+  // Save voice selection to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined" && voice) {
+      localStorage.setItem(STORAGE_KEYS.VOICE, voice);
+    }
+  }, [voice]);
 
   // Reset voice when language changes
   const handleLanguageChange = (newLanguage: string) => {
     setLanguage(newLanguage);
     setVoice(""); // Reset voice selection
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(STORAGE_KEYS.VOICE); // Clear saved voice when language changes
+    }
   };
 
   const availableVoices = voicesByLanguage[language] || [];
@@ -193,6 +243,17 @@ export default function Home() {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push("/login");
+      toast.success("Successfully signed out!");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error("Failed to sign out. Please try again.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -202,7 +263,18 @@ export default function Home() {
   }
 
   return (
-    <main className="container mx-auto py-8 px-4">
+    <main className="container mx-auto p-4 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Text to Speech Synthesis</h1>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-600">
+            Signed in as {user?.email}
+          </span>
+          <Button variant="outline" onClick={handleSignOut}>
+            Sign Out
+          </Button>
+        </div>
+      </div>
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle>Text to Speech Synthesis</CardTitle>

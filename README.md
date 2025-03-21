@@ -13,6 +13,8 @@ A modern web application for text-to-speech synthesis using Google Cloud Text-to
 - Modern and responsive UI
 - Real-time audio playback
 - Download synthesized speech as WAV files
+- User authentication with Google Sign-In
+- Persistent language and voice preferences
 
 ## Prerequisites
 
@@ -50,6 +52,12 @@ export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-key.json"
 
 ```
 GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-key.json"
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 5. Start the development server:
