@@ -20,6 +20,12 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleGoogleLogin = async () => {
+    if (!auth) {
+      console.error("Firebase auth is not initialized");
+      toast.error("Authentication service is not available");
+      return;
+    }
+
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();

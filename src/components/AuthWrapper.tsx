@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { User } from "firebase/auth";
 
 const isAuthEnabled = process.env.NEXT_PUBLIC_AUTHENTICATION === "true";
 
