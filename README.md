@@ -17,6 +17,10 @@ A web application for text-to-speech synthesis using Google Cloud Text-to-Speech
 
 ![Text to Speech UI Screenshot](./screenshot.png)
 
+## Deploy to Cloud Run
+
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
+
 ## Prerequisites
 
 - Node.js 20.x or later
