@@ -13,6 +13,10 @@ A web application for text-to-speech synthesis using Google Cloud Text-to-Speech
 - Advanced audio settings (speed, pitch, volume)
 - Modern, responsive UI with ShadcnUI components
 
+## Example
+
+![Text to Speech UI Screenshot](./screenshot.png)
+
 ## Prerequisites
 
 - Node.js 20.x or later
